@@ -1,0 +1,9 @@
+{
+   "operation":"ADD",
+   "payload":{
+      "content":"test content",
+      "type":"12",
+      "pubdate":"01-01-1970 01:00",
+      "id":"3"
+   }
+}

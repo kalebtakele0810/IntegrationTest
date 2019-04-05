@@ -1,0 +1,10 @@
+{
+   "operation":"ADD",
+   "payload":{
+      "Firstname":"test",
+      "Lastname":"test",
+      "Email":"test@test.com",
+      "Password":"test",
+      "Id":"3"
+   }
+}
