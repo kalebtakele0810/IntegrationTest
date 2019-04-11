@@ -1,0 +1,14 @@
+{
+   "operation":"ADD",
+   "payload":{
+      "Firstname":"test",
+      "Lastname":"test",
+      "Email":"test@test.com",
+      "Password":"test",
+      "entryyear":"2009",
+      "sectionnumber":"3",
+      "registrationid":"GR6546543",
+      "phone":"0911111111",
+      "Id":"3"
+   }
+}
