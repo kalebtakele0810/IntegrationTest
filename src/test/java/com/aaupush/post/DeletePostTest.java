@@ -1,4 +1,4 @@
-package com.aaupush.user;
+package com.aaupush.post;
 
 import static org.junit.Assert.fail;
 
@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 import org.hamcrest.Matchers;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -21,62 +21,64 @@ import com.google.gson.JsonObject;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
-public class AddUserTest {
-
+public class DeletePostTest {
 	String url = "http://localhost:8080/server";
 	Connection con;
 	String databaseURL = "jdbc:mysql://localhost:3306/aaupush";
 	String driver = "com.mysql.jdbc.Driver";
 	String userName = "root";
 	String dbPassword = "";
-	Response response = null;
-	JsonElement status = null;
-	String Email = null;
+
 	int id;
-	String Firstname = null;
-	String Lastname = null;
-	String Password = null;
+	String content = null;
+	String type = null;
+	String pubdate = null;
+
 	@Rule
 	public ErrorCollector errorCollector = new ErrorCollector();
 
-	@Before
-	public void setUp() {
-
-	}
-
 	@Test
-	public void addUser1() {
+	public void deletePostTest() {
+		/* sending the post to be deleted */
 		RestAssured.baseURI = this.url;
-		response = RestAssured.given().contentType("application/json")
-				.body(new File("src/main/resources/User/addUser.json")).post("/UserServlet");
+		Response response = RestAssured.given().contentType("application/json")
+				.body(new File("src/main/resources/Post/delete/addPost.json")).post("/PostServlet");
 
 		JsonObject jobj = new Gson().fromJson(response.asString(), JsonObject.class);
+		JsonElement status = jobj.get("status");
+		Assert.assertEquals("OK", status.getAsString());
+
+		/* sending the post delete request */
+		response = RestAssured.given().contentType("application/json")
+				.body(new File("src/main/resources/Post/delete/deletePost.json")).post("/PostServlet");
+		jobj = new Gson().fromJson(response.asString(), JsonObject.class);
 		status = jobj.get("status");
-		this.getUser();		
 		errorCollector.checkThat(200, Matchers.equalTo(response.getStatusCode()));
 		errorCollector.checkThat("OK", Matchers.equalTo(status.getAsString()));
-		errorCollector.checkThat(3, Matchers.equalTo(this.id));
-		errorCollector.checkThat("test", Matchers.equalTo(this.Firstname));
-		errorCollector.checkThat("test", Matchers.equalTo(this.Lastname));
-		errorCollector.checkThat("test", Matchers.equalTo(this.Password));
-		errorCollector.checkThat("test@test.com", Matchers.equalTo(this.Email));
+
+		this.getPost();
+		errorCollector.checkThat(0, Matchers.equalTo(this.id));
+		errorCollector.checkThat(null, Matchers.equalTo(this.content));
+		errorCollector.checkThat(null, Matchers.equalTo(this.type));
+		errorCollector.checkThat(null, Matchers.equalTo(this.pubdate));
 	}
 
-	public void getUser() {
+	public void getPost() {
 		try {
 			Class.forName(this.driver);
 			this.con = DriverManager.getConnection(this.databaseURL, this.userName, this.dbPassword);
 			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery("select * from aaupush.user where aaupush.user.id='3' ;");
+			ResultSet rs = st.executeQuery("select * from aaupush.post where aaupush.post.id='4' ;");
 
 			while (rs.next()) {
-				
-					this.id = Integer.parseInt(rs.getString(1));
-					this.Email =  rs.getString(2);
-					this.Firstname = rs.getString(3);
-					this.Lastname = rs.getString(4);
-					this.Password =rs.getString(5);
-				
+				if (!rs.getString(2).isEmpty()) {
+					this.id = rs.getInt(1);
+					this.content = rs.getString(2);
+					this.pubdate = rs.getString(3);
+					this.type = rs.getString(4);
+
+				}
+
 			}
 			rs.close();
 			con.close();
@@ -84,4 +86,5 @@ public class AddUserTest {
 			fail("could not connect to the database!!");
 		}
 	}
+
 }

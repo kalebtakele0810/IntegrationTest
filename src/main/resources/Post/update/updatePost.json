@@ -1,0 +1,9 @@
+{
+   "operation":"UPDATE",
+   "payload":{
+      "content":"Updated content",
+      "type":"13",
+      "pubdate":"update",
+      "id":"3"
+   }
+}

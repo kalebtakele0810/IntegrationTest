@@ -6,6 +6,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.hamcrest.Matchers;
@@ -50,7 +51,7 @@ public class AddStudentTest {
 	}
 
 	@Test
-	public void addUser1() {
+	public void addUser1() throws ClassNotFoundException, SQLException {
 		RestAssured.baseURI = this.url;
 		response = RestAssured.given().contentType("application/json")
 				.body(new File("src/main/resources/User/signup.json")).post("/SignUpServlet");
@@ -68,36 +69,32 @@ public class AddStudentTest {
 		errorCollector.checkThat(2009, Matchers.equalTo(this.entryyear));
 		errorCollector.checkThat(3, Matchers.equalTo(this.sectionnumber));
 		errorCollector.checkThat("GR6546543", Matchers.equalTo(this.registrationid));
-		errorCollector.checkThat("0911111111", Matchers.equalTo(this.phone));
+		errorCollector.checkThat("911111111", Matchers.equalTo(this.phone));
 
 	}
 
-	public void getStudent() {
-		try {
-			Class.forName(this.driver);
-			this.con = DriverManager.getConnection(this.databaseURL, this.userName, this.dbPassword);
-			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery("select * from aaupush.user where aaupush.user.Id='3' ;");
+	public void getStudent() throws SQLException, ClassNotFoundException {
 
-			while (rs.next()) {
-				if (!rs.getString("email").isEmpty()) {
-					this.id = rs.getInt("id");
-					this.Email = rs.getString("email");
-					this.Firstname = rs.getString("firstname");
-					this.Lastname = rs.getString("lastname");
-					this.Password = rs.getString("password");
-					this.entryyear = rs.getInt("entryyear");
-					this.sectionnumber = rs.getInt("sectionnumber");
-					this.registrationid = rs.getString("registrationid");
-					this.phone = rs.getString("phone");
-				}
+		Class.forName(this.driver);
+		this.con = DriverManager.getConnection(this.databaseURL, this.userName, this.dbPassword);
+		Statement st = con.createStatement();
+		ResultSet rs = st.executeQuery("select * from aaupush.student where aaupush.student.id='3';");
 
-			}
-			rs.close();
-			con.close();
-		} catch (Exception e) {
-			fail("could not connect to the database!!");
+		while (rs.next()) {
+			this.id = Integer.parseInt(rs.getString(1));
+			this.Email = rs.getString(2);
+			this.entryyear = Integer.parseInt(rs.getString(3));
+			this.Firstname = rs.getString(4);
+			this.Lastname = rs.getString(5);
+			this.Password = rs.getString(6);
+			this.phone = rs.getString(7);
+			this.registrationid = rs.getString(8);
+			this.sectionnumber = Integer.parseInt(rs.getString(9));
+
 		}
+		rs.close();
+		con.close();
+
 	}
 
 }
