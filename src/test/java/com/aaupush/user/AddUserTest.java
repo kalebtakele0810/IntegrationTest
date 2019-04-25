@@ -45,14 +45,14 @@ public class AddUserTest {
 	}
 
 	@Test
-	public void addUser1() {
+	public void addUser() {
 		RestAssured.baseURI = this.url;
 		response = RestAssured.given().contentType("application/json")
 				.body(new File("src/main/resources/User/addUser.json")).post("/UserServlet");
 
 		JsonObject jobj = new Gson().fromJson(response.asString(), JsonObject.class);
 		status = jobj.get("status");
-		this.getUser();		
+		this.getUser();
 		errorCollector.checkThat(200, Matchers.equalTo(response.getStatusCode()));
 		errorCollector.checkThat("OK", Matchers.equalTo(status.getAsString()));
 		errorCollector.checkThat(3, Matchers.equalTo(this.id));
@@ -70,13 +70,13 @@ public class AddUserTest {
 			ResultSet rs = st.executeQuery("select * from aaupush.user where aaupush.user.id='3' ;");
 
 			while (rs.next()) {
-				
-					this.id = Integer.parseInt(rs.getString(1));
-					this.Email =  rs.getString(2);
-					this.Firstname = rs.getString(3);
-					this.Lastname = rs.getString(4);
-					this.Password =rs.getString(5);
-				
+
+				this.id = Integer.parseInt(rs.getString(1));
+				this.Email = rs.getString(2);
+				this.Firstname = rs.getString(3);
+				this.Lastname = rs.getString(4);
+				this.Password = rs.getString(5);
+
 			}
 			rs.close();
 			con.close();

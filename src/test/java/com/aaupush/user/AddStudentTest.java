@@ -1,7 +1,5 @@
 package com.aaupush.user;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -51,10 +49,10 @@ public class AddStudentTest {
 	}
 
 	@Test
-	public void addUser1() throws ClassNotFoundException, SQLException {
+	public void addStudent() throws ClassNotFoundException, SQLException {
 		RestAssured.baseURI = this.url;
 		response = RestAssured.given().contentType("application/json")
-				.body(new File("src/main/resources/User/signup.json")).post("/SignUpServlet");
+				.body(new File("src/main/resources/User/signup.json")).post("/SignupServlet");
 
 		JsonObject jobj = new Gson().fromJson(response.asString(), JsonObject.class);
 		status = jobj.get("status");
