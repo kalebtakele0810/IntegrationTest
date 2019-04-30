@@ -1,0 +1,10 @@
+{
+	"operation": "ADD",
+	"payload": {
+		"name": "test",
+		"coursecode": "Test12",
+		"ects": "3.4",
+		"credithour": "5.6",
+		"id": "1"
+	}
+}

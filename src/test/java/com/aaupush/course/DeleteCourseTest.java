@@ -1,4 +1,4 @@
-package com.aaupush.post;
+package com.aaupush.course;
 
 import static org.junit.Assert.fail;
 
@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 import org.hamcrest.Matchers;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -21,8 +21,7 @@ import com.google.gson.JsonObject;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
-public class AddPostTest {
-
+public class DeleteCourseTest {
 	String url = "http://localhost:8080/server";
 	Connection con;
 	String databaseURL = "jdbc:mysql://localhost:3306/aaupush";
@@ -31,49 +30,56 @@ public class AddPostTest {
 	String dbPassword = "";
 
 	int id;
-	String content = null;
-	String type = null;
-	String pubdate = null;
+	String name = null;
+	String coursecode = null;
+	String ects = null;
+	float credithour;
 
 	@Rule
 	public ErrorCollector errorCollector = new ErrorCollector();
 
-	@Before
-	public void setUp() {
-
-	}
-
 	@Test
-	public void addPost() {
+	public void deleteCourseTest() {
+		/* sending the course to be deleted */
 		RestAssured.baseURI = this.url;
 		Response response = RestAssured.given().contentType("application/json")
-				.body(new File("src/main/resources/Post/sendPost.json")).post("/PostServlet");
+				.body(new File("src/main/resources/Course/delete/addCourse.json")).post("/PostServlet");
 
 		JsonObject jobj = new Gson().fromJson(response.asString(), JsonObject.class);
 		JsonElement status = jobj.get("status");
-		this.getPost();
+		Assert.assertEquals("OK", status.getAsString());
+
+		/* sending the post delete request */
+		response = RestAssured.given().contentType("application/json")
+				.body(new File("src/main/resources/Course/delete/deleteCourse..json")).post("/PostServlet");
+		jobj = new Gson().fromJson(response.asString(), JsonObject.class);
+		status = jobj.get("status");
 		errorCollector.checkThat(200, Matchers.equalTo(response.getStatusCode()));
 		errorCollector.checkThat("OK", Matchers.equalTo(status.getAsString()));
-		errorCollector.checkThat(1, Matchers.equalTo(this.id));
-		errorCollector.checkThat("test content", Matchers.equalTo(this.content));
-		errorCollector.checkThat("12", Matchers.equalTo(this.type));
-		errorCollector.checkThat("01-01-1970", Matchers.equalTo(this.pubdate));
+
+		this.getCourse();
+		errorCollector.checkThat(null, Matchers.equalTo(this.id));
+		errorCollector.checkThat(null, Matchers.equalTo(this.coursecode));
+		errorCollector.checkThat(null, Matchers.equalTo(this.credithour));
+		errorCollector.checkThat(null, Matchers.equalTo(this.ects));
+		errorCollector.checkThat(null, Matchers.equalTo(this.name));
 	}
 
-	public void getPost() {
+	public void getCourse() {
 		try {
 			Class.forName(this.driver);
 			this.con = DriverManager.getConnection(this.databaseURL, this.userName, this.dbPassword);
 			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery("select * from aaupush.post where aaupush.post.id='1' ;");
+			ResultSet rs = st.executeQuery("select * from aaupush.course where aaupush.course.id='2' ;");
 
 			while (rs.next()) {
 				if (!rs.getString(2).isEmpty()) {
 					this.id = rs.getInt(1);
-					this.content = rs.getString(2);
-					this.pubdate = rs.getString(3);
-					this.type = rs.getString(4);
-					
+					this.coursecode = rs.getString(2);
+					this.credithour = Float.parseFloat(rs.getString(3));
+					this.ects = rs.getString(4);
+					this.name = rs.getString(5);
+
 				}
 
 			}

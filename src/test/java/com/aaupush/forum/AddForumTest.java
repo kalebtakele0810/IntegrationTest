@@ -1,4 +1,4 @@
-package com.aaupush.post;
+package com.aaupush.forum;
 
 import static org.junit.Assert.fail;
 
@@ -21,7 +21,7 @@ import com.google.gson.JsonObject;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
-public class AddPostTest {
+public class AddForumTest {
 
 	String url = "http://localhost:8080/server";
 	Connection con;
@@ -31,9 +31,11 @@ public class AddPostTest {
 	String dbPassword = "";
 
 	int id;
-	String content = null;
-	String type = null;
-	String pubdate = null;
+	String name = null;
+	String joincode = null;
+	boolean privacy;
+	String description = null;
+	String forumid = null;
 
 	@Rule
 	public ErrorCollector errorCollector = new ErrorCollector();
@@ -44,36 +46,40 @@ public class AddPostTest {
 	}
 
 	@Test
-	public void addPost() {
+	public void addForum() {
 		RestAssured.baseURI = this.url;
 		Response response = RestAssured.given().contentType("application/json")
-				.body(new File("src/main/resources/Post/sendPost.json")).post("/PostServlet");
+				.body(new File("src/main/resources/Forum/addForum.json")).post("/ForumServlet");
 
 		JsonObject jobj = new Gson().fromJson(response.asString(), JsonObject.class);
 		JsonElement status = jobj.get("status");
-		this.getPost();
+		this.getForum();
 		errorCollector.checkThat(200, Matchers.equalTo(response.getStatusCode()));
 		errorCollector.checkThat("OK", Matchers.equalTo(status.getAsString()));
 		errorCollector.checkThat(1, Matchers.equalTo(this.id));
-		errorCollector.checkThat("test content", Matchers.equalTo(this.content));
-		errorCollector.checkThat("12", Matchers.equalTo(this.type));
-		errorCollector.checkThat("01-01-1970", Matchers.equalTo(this.pubdate));
+		errorCollector.checkThat("test name", Matchers.equalTo(this.name));
+		errorCollector.checkThat("test code", Matchers.equalTo(this.joincode));
+		errorCollector.checkThat(true, Matchers.equalTo(this.privacy));
+		errorCollector.checkThat("test contet", Matchers.equalTo(this.description));
+		errorCollector.checkThat("test id", Matchers.equalTo(this.forumid));
 	}
 
-	public void getPost() {
+	public void getForum() {
 		try {
 			Class.forName(this.driver);
 			this.con = DriverManager.getConnection(this.databaseURL, this.userName, this.dbPassword);
 			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery("select * from aaupush.post where aaupush.post.id='1' ;");
+			ResultSet rs = st.executeQuery("select * from aaupush.forum where aaupush.forum.id='1' ;");
 
 			while (rs.next()) {
 				if (!rs.getString(2).isEmpty()) {
 					this.id = rs.getInt(1);
-					this.content = rs.getString(2);
-					this.pubdate = rs.getString(3);
-					this.type = rs.getString(4);
-					
+					this.description = rs.getString(2);
+					this.forumid = rs.getString(3);
+					this.joincode = rs.getString(4);
+					this.name = rs.getString(5);
+					this.privacy = Boolean.parseBoolean(rs.getString(6));
+
 				}
 
 			}

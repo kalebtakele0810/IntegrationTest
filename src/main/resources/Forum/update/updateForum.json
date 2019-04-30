@@ -1,0 +1,11 @@
+{
+	"operation": "UPDATE",
+	"payload": {
+		"forumid": "updated id",
+		"description": "updated contet",
+		"privacy": false,
+		"joincode":"updated code",
+		"name":"updated name",
+		"id": "3"
+	}
+}

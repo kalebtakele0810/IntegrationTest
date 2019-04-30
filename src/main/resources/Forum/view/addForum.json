@@ -1,0 +1,11 @@
+{
+	"operation": "ADD",
+	"payload": {
+		"forumid": "test id",
+		"description": "test contet",
+		"privacy": true,
+		"joincode":"test code",
+		"name":"test name",
+		"id": "2"
+	}
+}

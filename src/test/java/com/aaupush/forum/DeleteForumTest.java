@@ -1,4 +1,4 @@
-package com.aaupush.post;
+package com.aaupush.forum;
 
 import static org.junit.Assert.fail;
 
@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 import org.hamcrest.Matchers;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -21,8 +21,7 @@ import com.google.gson.JsonObject;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
-public class AddPostTest {
-
+public class DeleteForumTest {
 	String url = "http://localhost:8080/server";
 	Connection con;
 	String databaseURL = "jdbc:mysql://localhost:3306/aaupush";
@@ -31,49 +30,59 @@ public class AddPostTest {
 	String dbPassword = "";
 
 	int id;
-	String content = null;
-	String type = null;
-	String pubdate = null;
+	String name = null;
+	String joincode = null;
+	boolean privacy;
+	String description = null;
+	String forumid = null;
 
 	@Rule
 	public ErrorCollector errorCollector = new ErrorCollector();
 
-	@Before
-	public void setUp() {
-
-	}
-
 	@Test
-	public void addPost() {
+	public void deleteForumTest() {
+		/* sending the Forum to be deleted */
 		RestAssured.baseURI = this.url;
 		Response response = RestAssured.given().contentType("application/json")
-				.body(new File("src/main/resources/Post/sendPost.json")).post("/PostServlet");
+				.body(new File("src/main/resources/Forum/delete/addForum.json")).post("/ForumServlet");
 
 		JsonObject jobj = new Gson().fromJson(response.asString(), JsonObject.class);
 		JsonElement status = jobj.get("status");
-		this.getPost();
+		Assert.assertEquals("OK", status.getAsString());
+
+		/* sending the Forum delete request */
+		response = RestAssured.given().contentType("application/json")
+				.body(new File("src/main/resources/Forum/delete/deleteForum.json")).post("/ForumServlet");
+		jobj = new Gson().fromJson(response.asString(), JsonObject.class);
+		status = jobj.get("status");
 		errorCollector.checkThat(200, Matchers.equalTo(response.getStatusCode()));
 		errorCollector.checkThat("OK", Matchers.equalTo(status.getAsString()));
-		errorCollector.checkThat(1, Matchers.equalTo(this.id));
-		errorCollector.checkThat("test content", Matchers.equalTo(this.content));
-		errorCollector.checkThat("12", Matchers.equalTo(this.type));
-		errorCollector.checkThat("01-01-1970", Matchers.equalTo(this.pubdate));
+
+		this.getForum();
+		errorCollector.checkThat(0, Matchers.equalTo(this.id));
+		errorCollector.checkThat(null, Matchers.equalTo(this.name));
+		errorCollector.checkThat(null, Matchers.equalTo(this.joincode));
+		errorCollector.checkThat(null, Matchers.equalTo(this.privacy));
+		errorCollector.checkThat(null, Matchers.equalTo(this.description));
+		errorCollector.checkThat(null, Matchers.equalTo(this.forumid));
 	}
 
-	public void getPost() {
+	public void getForum() {
 		try {
 			Class.forName(this.driver);
 			this.con = DriverManager.getConnection(this.databaseURL, this.userName, this.dbPassword);
 			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery("select * from aaupush.post where aaupush.post.id='1' ;");
+			ResultSet rs = st.executeQuery("select * from aaupush.forum where aaupush.forum.id='4' ;");
 
 			while (rs.next()) {
 				if (!rs.getString(2).isEmpty()) {
 					this.id = rs.getInt(1);
-					this.content = rs.getString(2);
-					this.pubdate = rs.getString(3);
-					this.type = rs.getString(4);
-					
+					this.description = rs.getString(2);
+					this.forumid = rs.getString(3);
+					this.joincode = rs.getString(4);
+					this.name = rs.getString(5);
+					this.privacy = Boolean.parseBoolean(rs.getString(6));
+
 				}
 
 			}
